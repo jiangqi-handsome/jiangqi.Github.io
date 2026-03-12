@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 60px;
+      background: #0d0d0d;
+    }
+
+    button {
+      border: 0;
+      padding: 14px 32px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    /* 霓虹流光边框 */
+    .btn-neon {
+      background: #111;
+      border: 2px solid transparent;
+      transition: 0.4s;
+    }
+
+    .btn-neon::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(45deg, #0ff, #f0f, #0ff);
+      z-index: -1;
+      animation: neon 2s linear infinite;
+    }
+
+    @keyframes neon {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .btn-neon:hover {
+      background: transparent;
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+    }
+
+
+
+    /* 液态填充 */
+    .btn-liquid {
+      background: #2563eb;
+      z-index: 1;
+    }
+
+    .btn-liquid::before {
+      content: "";
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, #fff 20%, transparent 20%);
+      top: 120%;
+      left: -20%;
+      transition: 0.5s;
+      z-index: -1;
+    }
+
+    .btn-liquid:hover::before {
+      top: -50%;
+      left: -50%;
+    }
+
+    .btn-liquid:hover {
+      color: #2563eb;
+    }
+
+
+
+
+    /* 金边扫光 */
+    .btn-shine {
+      background: linear-gradient(45deg, #b8860b, #f5d478);
+      color: #111;
+    }
+
+    .btn-shine::before {
+      content: "";
+      position: absolute;
+      width: 40px;
+      height: 150%;
+      background: #fff;
+      transform: rotate(25deg);
+      top: -30%;
+      left: -100%;
+      transition: 0.5s;
+    }
+
+    .btn-shine:hover::before {
+      left: 150%;
+    }
+  </style>
+</head>
+
+<body>
+  <button class="btn-neon">霓虹流光</button>
+  <button class="btn-liquid">液态填充</button>
+  <button class="btn-shine">金边扫光</button>
+</body>
+
+</html>
