@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页加载效果</title>
+    <style>
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal" data-delay="100">Item 1</div>
+    <div class="reveal" data-delay="200">Item 2</div>
+
+    <div class="reveal">
+        <a href="https://www.yuanshen.com" target="_blank">原神</a>
+    </div>
+
+    <script>
+
+        /**
+         * 1、实现网页加载时的滚动渐显效果
+         * 2、使用了 IntersectionObserver API 来检测元素何时进入视口，并添加 .visible 类来触发 CSS 中定义的动画效果
+         * 3、通过 data-delay 属性为每个元素设置不同的动画延迟，实现错落有致的加载效果
+         * 
+         * @function onScrollReveal
+         * @description 初始化滚动渐显效果，设置元素的过渡延迟，并
+         * 
+         * 使用 IntersectionObserver 监听元素进入视口的事件，添加 .visible 类触发动画，并在不支持 IntersectionObserver 的浏览器中直接显示所有元素
+         */
+
+        function onScrollReveal() {
+            const revealEls = document.querySelectorAll(".reveal");
+
+            revealEls.forEach((el) => { // forEach 循环遍历所有具有 .reveal 类的元素
+
+                // dataset 是一个 DOMStringMap 对象，包含了所有以 data- 开头的属性，属性名会被转换为驼峰式（例如 data-delay 会变成 dataset.delay）
+                const delay = el.dataset.delay ? parseInt(el.dataset.delay, 10) : 0; // 从元素的 data-delay 属性读取延迟时间，如果没有则默认为 0
+
+                // if (delay) 条件判断确保只有当 delay 存在且不为 0 时才设置 transition-delay，这样可以避免不必要的样式设置
+                if (delay) {
+                    el.style.transitionDelay = `${delay}ms`;
+                }
+            });
+
+
+            // IntersectionObserver 是一个浏览器 API，用于异步观察目标1、元素与其2、祖先元素或3、顶级文档视口交叉状态的变化，常用于实现滚动渐显效果
+            if ("IntersectionObserver" in window) {
+                const io = new IntersectionObserver((entries) => {
+                    // entries 是一个 IntersectionObserverEntry 对象的数组，每个对象都包含了被观察元素的交叉状态信息
+                    entries.forEach((entry) => {
+                        // if (entry.isIntersecting) 条件判断检查当前元素是否进入了视口，如果是，则执行以下操作：
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("visible"); //add 方法将 .visible 类添加到当前进入视口的元素上，触发 CSS 中定义的渐显动画
+                            io.unobserve(entry.target); // unobserve 方法停止观察当前元素，优化性能，避免重复触发动画
+                        }
+                    });
+
+                }, { threshold: 0.12, rootMargin: "0px 0px -60px 0px" });
+
+                // observe 方法开始观察每个具有 .reveal 类的元素，监听它们进入视口的事件
+                revealEls.forEach((el) => io.observe(el));
+            } else {
+                // 如果浏览器不支持 IntersectionObserver，则直接添加 .visible 类，使所有 .reveal 元素立即可见，保证基本功能的兼容性
+                revealEls.forEach((el) => el.classList.add("visible"));
+            }
+        }
+
+        onScrollReveal(); // 初始化调用一次，确保页面加载时正确处理可见元素
+
+    </script>
+
+</body>
+
+</html>
