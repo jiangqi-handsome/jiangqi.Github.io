@@ -1,5 +1,4 @@
 /* =============================================================================
-  原生JS轮播图完整版（修复交替点击偶现卡顿、定时器冲突bug）
   功能清单：
   1. 鼠标悬浮轮播容器不暂停自动播放
   2. 左右切换按钮独立节流，快速连点无撕裂、互不干扰
@@ -54,7 +53,6 @@ for (let i = 0; i < slideCount; i++) {
 // ====================== 四、核心工具函数：更新轮播滑动位置 ======================
 /**
  * 功能：修改轨道位移实现图片切换，同步更新底部圆点激活样式
- * 无入参，无返回值
  */
 function updateSlider() {
     // 计算轨道横向偏移百分比，单张图片占100%宽度
@@ -71,7 +69,6 @@ function updateSlider() {
 // ====================== 五、图片切换基础逻辑函数 ======================
 /**
  * 功能：切换到下一张图片，到末尾则循环回到第一张
- * 无入参，无返回值
  */
 function nextSlide() {
     // 下标自增1
@@ -84,7 +81,6 @@ function nextSlide() {
 
 /**
  * 功能：切换到上一张图片，到开头则循环跳转到最后一张
- * 无入参，无返回值
  */
 function prevSlide() {
     // 下标自减1
@@ -120,13 +116,14 @@ function prevSlide() {
     /**
      * 功能：只清除全局公共定时器（自动轮播、冷却倒计时）
      * 不清理按钮私有节流延时，避免左右按钮状态互相破坏
-     * 无入参，无返回值
      */
     function clearGlobalTimer() {
         // 销毁自动轮播循环定时器
         clearInterval(autoTimer);
+
         // 销毁冷却倒计时定时器
         clearTimeout(coolDownTimer);
+
         // 定时器变量置空，释放内存
         autoTimer = null;
         coolDownTimer = null;
@@ -134,33 +131,36 @@ function prevSlide() {
 
     /**
      * 功能：启动自动轮播，冷却期间直接禁止执行
-     * 无入参，无返回值
      */
     function startAutoPlay() {
         // 判断：如果处于冷却阶段，直接终止函数，不开启自动播放
         if (isClickCooling) return;
+
         // 清空旧的全局定时器，防止多个自动轮播同时运行
         clearGlobalTimer();
+
         // 创建循环定时器，定时执行切换下一张
         autoTimer = setInterval(() => nextSlide(), AUTO_INTERVAL);
     }
 
     /**
      * 功能：点击按钮/圆点后统一执行冷却逻辑，挂载到window供外部圆点调用
-     * 修复优化：已在冷却时不再重置倒计时，狂点不会无限拉长暂停时间
-     * 无入参，无返回值
      */
     window.handleClickCool = function () {
         // 判断：当前已经在冷却中，直接return，不再新建冷却定时器
         if (isClickCooling) return;
+
         // 清空自动轮播、旧冷却计时器
         clearGlobalTimer();
+
         // 开启冷却锁定，锁住自动播放
         isClickCooling = true;
+
         // 创建冷却倒计时宏任务
         coolDownTimer = setTimeout(() => {
             // 倒计时结束，解锁冷却标记
             isClickCooling = false;
+
             // 重新启动自动轮播
             startAutoPlay();
         }, CLICK_COOL_TIME);
@@ -168,19 +168,21 @@ function prevSlide() {
 
     /**
      * 功能：下一张按钮节流处理函数，兜底修复节流标记卡死bug
-     * 无入参，无返回值
      */
     function throttleNext() {
-        // 兜底修复：先清空自身残留节流延时，强制解锁标记，杜绝偶现卡住
+        // 先清空自身残留节流延时，强制解锁标记，杜绝偶现卡住
         clearTimeout(nextThrottleTimer);
         canClickNext = true;
 
         // 判断节流锁定状态，锁定则拦截本次点击
         if (!canClickNext) return;
+
         // 节流上锁，短时间禁止重复点击
         canClickNext = false;
+
         // 执行切换下一张图片
         nextSlide();
+
         // 触发冷却逻辑，暂停自动播放
         handleClickCool();
 
@@ -192,19 +194,21 @@ function prevSlide() {
 
     /**
      * 功能：上一张按钮节流处理函数，和下一张完全独立隔离
-     * 无入参，无返回值
      */
     function throttlePrev() {
-        // 兜底修复：清空自身残留节流延时，强制重置标记，解决偶发点击无响应
+        // 清空自身残留节流延时，强制重置标记，解决偶发点击无响应
         clearTimeout(prevThrottleTimer);
         canClickPrev = true;
 
         // 判断节流锁定，锁定则拦截点击
         if (!canClickPrev) return;
+
         // 节流上锁
         canClickPrev = false;
+
         // 执行切换上一张图片
         prevSlide();
+
         // 触发冷却暂停自动播放
         handleClickCool();
 
@@ -216,6 +220,7 @@ function prevSlide() {
 
     // 给下一张按钮绑定节流点击事件
     nextBtn.addEventListener('click', throttleNext);
+    
     // 给上一张按钮绑定节流点击事件
     prevBtn.addEventListener('click', throttlePrev);
 
