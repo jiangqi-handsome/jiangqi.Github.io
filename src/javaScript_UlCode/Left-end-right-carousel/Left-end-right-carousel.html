@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./Left-end-right-carousel.css">
+  <title>左右轮播图组件</title>
+</head>
+
+<body>
+  
+  <!-- ======== HTML 结构（骨架） ======== -->
+  <!-- 整个轮播图就这一个容器 -->
+  <div class="slider" id="mySlider">
+
+    <!-- 轨道：里面装所有图片 -->
+    <div class="slider__track" id="sliderTrack">
+      <img class="slider__slide" style="object-fit: cover; width: 100%; height: 100%;"
+        src="https://act-webstatic.mihoyo.com/puzzle/hk4e/pz_frZbKlEoJS/resource/puzzle/2025/12/31/7aa71ee96abb380fc3d1973701f7bb16_6007049507211371535.jpeg?x-oss-process=image/format,webp/quality,Q_90"
+        alt="yuanshen">
+      <img class="slider__slide" style="object-fit: cover; width: 100%; height: 100%;"
+        src="https://mc.kurogames.com/website-preface/video/bg/bg-poster.webp?_v=2.8" alt="mingchai">
+      <img class="slider__slide" style="object-fit: cover; width: 100%; height: 100%;"
+        src="https://media-cdn-zspms.kurogame.com/pnswebsite/website2.0/images/1766419200000/hvju9c44v5kooigv0k-1766473338340%E7%89%88%E6%9C%AC%E4%B9%9D%E5%9B%BE%20700x375.jpg"
+        alt="zhanshuang">
+    </div>
+
+    <!-- 左右按钮 -->
+    <button class="slider__btn slider__btn--prev" id="prevBtn">‹</button>
+    <button class="slider__btn slider__btn--next" id="nextBtn">›</button>
+
+    <!-- 指示点容器（空架子，等 JS 来填） -->
+    <div class="slider__dots" id="sliderDots"></div>
+  </div>
+
+  <!--  -->
+  <!--  -->
+  <!--  -->
+  <!-- js -->
+  <script src="./Left-end-right-carousel.js"></script>
+</body>
+
+</html>

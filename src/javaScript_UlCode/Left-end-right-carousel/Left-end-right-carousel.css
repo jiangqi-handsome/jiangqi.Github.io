@@ -1,0 +1,93 @@
+    /* ======== 轮播图专属样式（与其他组件完全隔离） ======== */
+    :root {
+        --primary: #ff4d5a;
+        --transition: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 轮播容器：固定宽高，隐藏超出部分 */
+    .slider {
+        max-width: 1200px;
+        height: 600px;
+        margin: 2rem auto;
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 轨道：用 flex 横向排列所有滑块，宽度 = 滑块数量 × 100% */
+    .slider__track {
+        display: flex;
+        height: 100%;
+        transition: transform 0.7s var(--transition);
+    }
+
+    /* 单个滑块：默认占满容器宽度 */
+    .slider__slide {
+        min-width: 100%;
+        /* 关键：强制每张图占满一整屏 */
+        height: 100%;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        background-size: cover;
+        /* 后面你换图片要用 */
+        background-position: center;
+    }
+
+    /* 控制按钮：左右箭头 */
+    .slider__btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .slider__btn:hover {
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    .slider__btn:active {
+        transform: scale(0.9);
+    }
+
+    .slider__btn--prev {
+        left: 20px;
+    }
+
+    .slider__btn--next {
+        right: 20px;
+    }
+
+    /* 指示点：底部小圆点 */
+    .slider__dots {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .slider__dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: background 0.3s, transform 0.3s;
+    }
+
+    .slider__dot.active {
+        background: #fff;
+        transform: scale(1.2);
+    }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- =============== 轮播图的作者样式表 =============== -->
+    <link rel="stylesheet" href="./Left-right__circular-carousel.css">
+
+    <!-- =============== 网页的网站名 ================ -->
+    <title>左右《轮播图 · 无缝轮播》</title>
+</head>
+<body>
+
+    <!-- =============== 轮播图整体 ============== -->
+    <div class="carousel">
+        <!-- ========== 轮播图的图片展示 ========== -->
+        <div class="slider-track">
+            <!-- ===== 无缝的核心1：就是首尾复制图片 ===== -->
+
+            <!-- 首：复制最后一张（原图）放在前面  -->
+            <div class="slider-slide"><img src="./picture/mingchao-3.jpg" alt=""></div>
+
+            <!-- 原图：（1, 2, 3） 三张图-->
+            <div class="slider-slide"><img src="./picture/mingchao-1.jpg" alt=""></div>
+            <div class="slider-slide"><img src="./picture/mingchao-2.jpg" alt=""></div>
+            <div class="slider-slide"><img src="./picture/mingchao-3.jpg" alt=""></div>
+
+            <!-- 尾：复制最前面的第一张（原图）放在后面 -->
+            <div class="slider-slide"><img src="./picture/mingchao-1.jpg" alt=""></div>
+        </div>
+
+        <!-- ========== 轮播图的左右控制键 ========== -->
+        <button class="carousel-btn prev" style="left: 50px;">‹</button>
+        <button class="carousel-btn next" style="right: 20px;">›</button>
+    </div>
+    <!--  -->
+    <!--  -->
+    <!--  -->
+    <!--  -->
+    <!-- javaScript -->
+    <!-- ========== v0.2版本 ==========  -->
+    <script type="text/javaScript" src="./Left-right__circular-carousel.js"></script>
+</body>
+</html>

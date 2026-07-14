@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>栏目切换效果</title>
+    <style>
+        /* ============================================================
+           全局样式重置
+           ============================================================
+           清除浏览器默认的外边距、内边距，统一盒模型为 border-box，
+           确保所有元素的宽度/高度计算包含内边距和边框。
+        ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ============================================================
+           栏目切换（Tab）样式
+           ============================================================ */
+
+        /* Tab 整体容器：圆角边框 + 溢出隐藏，营造卡片感 */
+        .tab-container {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Tab 头部导航栏：使用 flex 布局让按钮水平排列 */
+        .tab-header {
+            display: flex;
+            list-style: none;
+            /* 去掉 ul 默认的列表圆点 */
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Tab 按钮：均分宽度，带过渡动画 */
+        .tab-button {
+            flex: 1;
+            /* 所有按钮平分宽度 */
+            font-weight: 500;
+            padding: 15px;
+            color: #333;
+            text-align: center;
+            background: #f1f1f1;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            /* 颜色/背景等属性变化时有 0.3s 过渡 */
+        }
+
+        /* 选中状态的 Tab 按钮：蓝色背景 + 白色文字 */
+        .tab-button.active {
+            background: #007bff;
+            color: #fff;
+        }
+
+        /* Tab 内容区：默认隐藏 */
+        .tab-content {
+            display: none;
+        }
+
+        /* 激活的 Tab 内容：显示出来 */
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ============================================================
+         Tab 组件结构
+         ============================================================
+         - .tab-header 中的每个 li 通过 data-content 属性绑定对应内容区的 id
+         - 初始时 tab1 为激活状态（带有 active 类）
+         - 点击哪个 li，就把对应的内容区显示出来
+    ============================================================ -->
+    <div class="tab-container">
+        <!-- Tab 导航按钮组 -->
+        <ul class="tab-header">
+            <li data-content="tab1" class="tab-button active">tab 1</li>
+            <li data-content="tab2" class="tab-button">tab 2</li>
+            <li data-content="tab3" class="tab-button">tab 3</li>
+        </ul>
+
+        <!-- Tab 内容区 1 -->
+        <div class="tab-content active" id="tab1">
+            <h1>tab 1 Content</h1>
+            <p>Lorem ipsum dolor sit amet.</p>
+        </div>
+
+        <!-- Tab 内容区 2 -->
+        <div class="tab-content" id="tab2">
+            <h1>tab 2 Content</h1>
+            <p>Quaerat nesciunt excepturi et voluptatum!</p>
+        </div>
+
+        <!-- Tab 内容区 3 -->
+        <div class="tab-content" id="tab3">
+            <h1>tab 3 Content</h1>
+            <p>Sunt incidunt optio placeat porro.</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         JavaScript 逻辑
+         ============================================================
+         实现思路：事件委托（Event Delegation）
+         - 不逐个给 li 绑定点击事件，而是把事件绑定在父元素 .tab-header 上
+         - 利用事件冒泡机制，点击 li 时事件会冒泡到父元素
+         - 通过 e.target 判断实际点击的元素，再做相应处理
+         - 优点：代码更简洁，性能更好，动态新增的 li 也能自动生效
+    ============================================================ -->
+    <script>
+        // 获取所有 Tab 按钮（用于批量移除 active 类）
+        const tabButton = document.querySelectorAll('.tab-button');
+        // 获取所有 Tab 内容区（用于批量隐藏）
+        const tabContents = document.querySelectorAll('.tab-content');
+        // 获取 Tab 头部容器（用于事件委托）
+        const tabHeader = document.querySelector('.tab-header');
+
+        /**
+         * 点击 Tab 头部时的处理函数
+         * @param {Event} e - 事件对象，包含触发事件的目标元素等信息
+         */
+        tabHeader.onclick = function (e) {
+            // 获取实际被点击的元素
+            let target = e.target;
+
+            // --------------------------------------------------------
+            // 边界判断：不符合条件直接 return，不执行后续逻辑
+            // 1. 点击的不是 li 标签（可能点到了 ul 的空白区域）
+            // 2. 点击的已经是激活状态的 Tab（不需要重复切换）
+            // --------------------------------------------------------
+            if (target.tagName !== "LI" || target.classList.contains('active')) {
+                return;
+            }
+
+            // --------------------------------------------------------
+            // 第一步：清除所有按钮的激活状态
+            // --------------------------------------------------------
+            tabButton.forEach(function (button) {
+                button.classList.remove('active');
+            });
+
+            // --------------------------------------------------------
+            // 第二步：隐藏所有内容区
+            // --------------------------------------------------------
+            tabContents.forEach(function (content) {
+                content.classList.remove('active');
+            });
+
+            // --------------------------------------------------------
+            // 第三步：给当前点击的按钮加上激活样式
+            // --------------------------------------------------------
+            target.classList.add('active');
+
+            // --------------------------------------------------------
+            // 第四步：显示对应的内容区
+            // 通过 data-content 属性获取要显示的内容区 id，
+            // 再用 getElementById 找到该元素并添加 active 类
+            // --------------------------------------------------------
+            document.getElementById(target.dataset.content).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

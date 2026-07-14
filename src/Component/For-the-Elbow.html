@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #999393;
+        }
+
+        /* .label是左右滑动按钮容器样式 */
+        .label {
+            height: 60px;
+            width: 120px;
+            background-color: #fff;
+            border-radius: 30px;
+            box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+                /* 内部阴影 */
+                inset 0 0 20px 1px rgba(0, 0, 0, 0.488),
+                /* 内部阴影 */
+                10px 20px 30px rgba(0, 0, 0, 0.096),
+                /* 外部阴影 */
+                inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+                /* 内部阴影 */
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.4s; /* 左右摇摆动画 */
+        }
+
+        /* 配合transform使用，实现动画 */
+        .label:hover {
+            transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+        }
+
+        #checkbox:checked~.label:hover {
+            transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+        }
+
+        /* 将复选框隐藏，none不是删除而是隐藏 */
+        #checkbox {
+            display: none;
+        }
+
+        /* 出发样式添加样式，将阴影白球变成黑球 */
+        #checkbox:checked~.label::before {
+            left: 70px;
+            background-color: #000;
+            background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+            transition: 0.4s;
+        }
+
+
+        /* content球球的主体与样式 */
+        .label::before {
+            position: absolute;
+            content: "";
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #000000;
+            background-image: linear-gradient(130deg, #757272 10%, #ffffff 11%, #726f6f 62%);
+            left: 10px;
+            box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 10px 10px 10px rgba(0, 0, 0, 0.3);
+            transition: 0.4s;
+        }
+    </style>
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 复选框input -->
+        <input type="checkbox" name="checkbox" id="checkbox">
+
+        <!-- 左右按钮容器label -->
+        <label for="checkbox" class="label"></label>
+    </div>
+</body>
+
+</html>

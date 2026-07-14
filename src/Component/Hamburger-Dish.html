@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉堡菜单 ===> 点击变X</title>
+    <!-- ========== 全局样式表 ========== -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <!-- ========= 汉堡菜单样式表 ========== -->
+    <style>
+        .container {
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .bar1,
+        .bar2,
+        .bar3 {
+            width: 35px;
+            height: 5px;
+            background-color: #333;
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+
+        /* ===== 点击元素后三条杠变 X ===== */
+        .change .bar1 {
+            transform: translate(0, 11px) rotate(-45deg);
+        }
+
+        .change .bar2 {
+            opacity: 0;
+        }
+
+        .change .bar3 {
+            transform: translate(0, -11px) rotate(45deg);
+        }
+    </style>
+
+    <!-- ========== 第六种：汉堡菜单css写法不用js ========== -->
+    <style>
+        /*
+        * 使用css写的有一个非常简单的bug，鼠标要贴近这个汉堡菜单的中心才能有效果。
+        * 点边缘无法取消，这就是css的痛点，有的时候呢，他又靠近元素太宽。
+        * 需要解决这些问题的话，要把css熟练透才能理解。
+        * 推荐使用css+js+html
+         */
+        #check {
+            position: absolute;
+            opacity: 0;
+        }
+
+        label[for="check"] {
+            cursor: pointer;
+            display: inline-block;
+            padding: 4px;
+        }
+
+        .cssBar {
+            width: 35px;
+            height: 5px;
+            background: #333;
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+
+        #check:checked~label .cssBar1 {
+            transform: translateY(11px) rotate(-45deg);
+        }
+
+        #check:checked~label .cssBar2 {
+            opacity: 0;
+        }
+
+        #check:checked~label .cssBar3 {
+            transform: translateY(-11px) rotate(45deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 第六种：css写法HTML -->
+    <input type="checkbox" id="check">
+    <label for="check">
+        <div class="cssBar cssBar1"></div>
+        <div class="cssBar cssBar2"></div>
+        <div class="cssBar cssBar3"></div>
+    </label>
+
+
+
+    <!-- 使用css+js+html -->
+    <div class="container" id="menuIcon">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </div>
+
+
+
+    <!-- 和第四种配套 -->
+    <burger-icon></burger-icon>
+
+    <!--  -->
+    <!--  -->
+    <!--  -->
+    <!-- js -->
+    <script>
+        /*
+        * 通过js给元素绑定点击事件。
+        * 好处：HTML里再也看不到任何 onxxx="" 代码。
+        * 维护成本降低、可移植性提高、从---/A网站/---直接可以将代码移到---/B网站/。
+        * 不需要在html里面去写事件处理添加
+        * 总共是六种：五种js写法，一种css写法。 
+        * 在编写逻辑看在什么地方写，写代码一定要有规划，不然迎接你的只有满偏红的erroe老朋友接应你。
+        * 一次只能引用一个，否则控制台会输出错误 / 一个元素不要绑定太多事件（报错是引用错误，因为引用太多）。
+        */
+
+        /* ========== 第一种：获取id添加 ========== */
+        document.getElementById('menuIcon').addEventListener('click', function () {
+            this.classList.toggle('change'); // 这里的 this 就是 #menuIcon,  不是window对象
+        });
+
+
+
+        /* ========== 第二种：箭头函数 + 自动执行 (把绑定和声明写在一起，文件加载就生效) ========== */
+        (() => document.getElementById('menuIcon')
+            .addEventListener('click', e => e.currentTarget.classList.toggle('change'))
+        )();
+
+
+
+        /* ========== 第三种：事件委托-----不用id、类名、元素 只要父元素就行 (适合未来动态插入的图标) ========== */
+        document.body.addEventListener('click', e => {
+            if (e.target.closest('.container')) { // 点击.container或其子元素
+                e.target.closest('.container').classList.toggle('change');
+            }
+        });
+
+
+
+
+        /* ========== 第四种：自定义元素 + 影子DOM (ShadowDOM) ===== / ===== ("组件级"写法，样式天然隔离，不会和页面css冲突) ========== */
+        // 自定义元素 ---> HTML ---> <burger-icon></burger-icon>
+        // 可能在后面使用，这个代码的时候会出现问题，亲谨慎使用 尽量熟悉之后再使用影子DOM
+        customElements.define('burger-icon', class extends HTMLElement {
+            constructor() {
+                super().attachShadow({ mode: 'open' })
+                    .innerHTML = `
+                        <style>
+                            .bars {
+                                cursor: pointer;
+                                width: 30px;
+                                height: 24px;
+                            }
+
+                            .bar {
+                                height: 4px;
+                                background: #333;
+                                margin: 4px;
+                                transition: 0.3s;
+                            }
+
+                            /* ===== 点击元素后三条杠变 X ===== */
+                            :host(.play) .bar1 {
+                                transform: translateY(8px) rotate(-45deg);
+                            }
+
+                            :host(.play) .bar2 {
+                                opacity: 0;
+                            }
+
+                            :host(.play) .bar3 {
+                                transform: translateY(-8px) rotate(45deg);
+                            }
+                        </style>
+                        <div class="bars">
+                            <div class="bar bar1"></div>
+                            <div class="bar bar2"></div>
+                            <div class="bar bar3"></div>
+                        </div>
+                    `;
+                this.shadowRoot.querySelector('.bars')
+                    .addEventListener('click', () => this.classList.toggle('play'));
+            }
+        });
+
+
+
+        /* ========== 第五种：使用Proxy拦截"click”属性 ========== */
+        /*
+        * 重点注意！：这个只能用于让我们理解拦截，不可在业务代码以及程序当中去使用。因为拦截事件，但里面又绑定了事件
+        * 总结就是：不能增So加功能，只增加认知负担，所以---“开发不能用”---，不过可以留作面试题或代码谜题。拿给面试官考考
+        */
+        const icon = document.getElementById('menuIcon');
+        const proxy = new Proxy(icon, {
+            set(target, prop, val) {
+                if (prop === 'onclick') { // 有人给onclick赋值
+                    target.addEventListener('click', val);
+                    return true;
+                }
+                return Reflect.set(...arguments);
+            }
+        });
+
+        proxy.onclick = () => icon.classList.toggle('change');
+    </script>
+</body>
+
+</html>
