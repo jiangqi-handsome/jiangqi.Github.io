@@ -1,0 +1,172 @@
+// 动画圆圈的边框颜色
+$border-color-dot1: #1e3f57;
+$border-color-dot2: #447891;
+$border-color-dot3: #6bb2cd;
+
+// 每个动画圆圈的变换属性
+$transform-rotateX: 24deg;
+$transform-rotateY: 20deg;
+$transform-rotateZ: 0deg;
+$transform-translateZ: -25px;
+
+// retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+$dot-0-rotateX: 24deg;
+$dot-0-rotateY: 20deg;
+$dot-0-rotateZ: 0deg;
+$dot-0-translateZ: -25px;
+
+// retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+$dot-50-rotateX: 20deg;
+$dot-50-rotateY: 20deg;
+$dot-50-rotateZ: 50deg;
+$dot-50-translateZ: 0px;
+
+// retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+$dot-100-rotateX: 24deg;
+$dot-100-rotateY: 20deg;
+$dot-100-rotateZ: 0deg;
+$dot-100-translateZ: -25px;
+
+body {
+    background-color: #1e3f57;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* 动画组件容器 */
+.loader {
+    width: 200px;
+    height: 200px;
+    perspective: 200px;
+
+    .dot {
+        // 内层动画圆圈
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80px;
+        height: 80px;
+        margin-top: -60px;
+        margin-left: -60px;
+        border-radius: 100px;
+
+        // 内层动画圆圈的边框样式
+        border: 40px outset $border-color-dot1;
+        transform-origin: 50% 50%;
+
+        // retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+        transform: rotateX($transform-rotateX) rotateY($transform-rotateY) rotateZ($transform-rotateZ) translateZ($transform-translateZ);
+
+        // 动画圆圈的背景颜色
+        background-color: transparent;
+
+        // 动画名称，动画时长，动画缓动函数，动画循环次数
+        animation: dot1 1000ms cubic-bezier(.49, .06, .43, .85) infinite;
+
+        // 动画关键帧
+        @keyframes dot1 {
+
+            // retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+            0% {
+                border-color: $border-color-dot1;
+                transform: rotateX($dot-0-rotateX) rotateY($dot-0-rotateY) rotateZ($dot-0-rotateZ) translateZ($dot-0-translateZ);
+            }
+
+            50% {
+                border-color: $border-color-dot1;
+                transform: rotateX($dot-50-rotateX) rotateY($dot-50-rotateY) rotateZ($dot-50-rotateZ) translateZ($dot-50-translateZ);
+            }
+
+            100% {
+                border-color: $border-color-dot1;
+                transform: rotateX($dot-100-rotateX) rotateY($dot-100-rotateY) rotateZ($dot-100-rotateZ) translateZ($dot-100-translateZ);
+            }
+        }
+    }
+
+    .dot:nth-child(2) {
+
+        // 第二个动画圆圈
+        width: 120px;
+        height: 120px;
+        margin-top: -70px;
+        margin-left: -70px;
+        border-width: 30px;
+
+        // 第二个动画圆圈的边框颜色
+        border-color: $border-color-dot2;
+        animation-name: dot2;
+        animation-delay: 75ms;
+        box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.1);
+
+        // retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+        transform: rotateX($transform-rotateX) rotateY($transform-rotateY) rotateZ($transform-rotateZ) translateZ($transform-translateZ);
+
+        // 动画关键帧
+        @keyframes dot2 {
+
+            // retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+            0% {
+                border-color: $border-color-dot2;
+                box-shadow: inset 0 0 15px 0 rgba(255, 255, 255, 0.2);
+                transform: rotateX($dot-0-rotateX) rotateY($dot-0-rotateY) rotateZ($dot-0-rotateZ) translateZ($dot-0-translateZ);
+            }
+
+            50% {
+                border-color: $border-color-dot2;
+                box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.8);
+                transform: rotateX($dot-50-rotateX) rotateY($dot-50-rotateY) rotateZ($dot-50-rotateZ) translateZ($dot-50-translateZ);
+            }
+
+            100% {
+                border-color: $border-color-dot2;
+                box-shadow: inset 0 0 15px 0 rgba(255, 255, 255, 0.2);
+                transform: rotateX($dot-100-rotateX) rotateY($dot-100-rotateY) rotateZ($dot-100-rotateZ) translateZ($dot-100-translateZ);
+            }
+        }
+    }
+
+    .dot:nth-child(3) {
+
+        // 第三个动画圆圈
+        width: 160px;
+        height: 160px;
+        margin-top: -80px;
+        margin-left: -80px;
+        border-width: 20px;
+
+        // 第三个动画圆圈的边框颜色
+        border-color: $border-color-dot3;
+        animation-name: dot3;
+        animation-delay: 150ms;
+        box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.1);
+
+        // retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+        transform: rotateX($transform-rotateX) rotateY($transform-rotateY) rotateZ($transform-rotateZ) translateZ($transform-translateZ);
+
+        // 动画关键帧
+        @keyframes dot3 {
+
+            // retateX转动，rotateY旋转，rotateZ旋转，translateZ平移
+            0% {
+                border-color: $border-color-dot3;
+                box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.1);
+                transform: rotateX($dot-0-rotateX) rotateY($dot-0-rotateY) rotateZ($dot-0-rotateZ) translateZ($dot-0-translateZ);
+            }
+
+            50% {
+                border-color: $border-color-dot3;
+                box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.8);
+                transform: rotateX($dot-50-rotateX) rotateY($dot-50-rotateY) rotateZ($dot-50-rotateZ) translateZ($dot-50-translateZ);
+            }
+
+            100% {
+                border-color: $border-color-dot3;
+                box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.1);
+                transform: rotateX($dot-100-rotateX) rotateY($dot-100-rotateY) rotateZ($dot-100-rotateZ) translateZ($dot-100-translateZ);
+            }
+        }
+    }
+}
