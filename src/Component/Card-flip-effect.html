@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《芙宁娜·德·枫丹》2d卡片翻转效果</title>
+
+    <style>
+        /* 翻转盒容器 - 可设置宽度和高度为任意值。我们添加了边框属性来展示当鼠标悬停时翻转本身会超出盒子（如果不想要 3D 效果就移除透视效果）。 */
+        .flip-box {
+            background-color: transparent;
+            width: 300px;
+            height: 200px;
+            border: 1px solid #f1f1f1;
+            perspective: 1000px; /* 如果您不想要 3D 效果，请将此删除 */
+        }
+
+        /* 这个容器用于定位正面和背面 */
+        .flip-box-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        /* 当您将鼠标移到翻转盒容器上时，进行水平翻转 */
+        .flip-box:hover .flip-box-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* 定位正面和背面 */
+        .flip-box-front,
+        .flip-box-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* Safari */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* 设置正面的样式（如果图像缺失则回退） */
+        .flip-box-front {
+            background-color: #bbb;
+            color: black;
+            transform: rotateY(180deg);
+        }
+
+        /* 设计背面的样式 */
+        .flip-box-back {
+            background-color: dodgerblue;
+            color: white;
+            /* transform: rotateY(180deg); */
+        }
+    </style>
+</head>
+
+<body style="display: flex; min-height: 100vh;">
+    <div class="flip-box" style="margin: auto;">
+
+        <div class="flip-box-inner">
+
+            <div class="flip-box-front">
+                <img src="https://ts2.tc.mm.bing.net/th/id/OIP-C.azM6GuqbROq1F4wHNkj3SgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3"
+                    alt="yuanshen" style="object-fit: cover; width: 100%; height: 100%;">
+            </div>
+
+            <div class="flip-box-back">
+                <img src="https://ts3.tc.mm.bing.net/th/id/OIP-C.hlTCxY0n9ok0CXJ5bpOEjQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3"
+                    alt="yuanshen" style="object-fit: cover; width: 100%; height: 100%;">
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
