@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            line-height: 1.5;
+            background: linear-gradient(#989deb 0%, #c2c5f3 100%);
+        }
+
+        .conert {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
+
+    <style>
+        /* 三个输入表单与按钮样式 */
+        .input, button {
+            width: 100%;
+            height: 40px;
+            position: relative;
+            padding: 10px;
+            border: 0.1px solid #887e7e;
+        }
+
+        /* 登录按钮样式 */
+        button {
+            background: #6d74e3;
+            border: none;
+        }
+
+        /* ul容器样式 */
+        .wrapper {
+            position: relative;
+            transform: skewY(-14deg);
+        }
+
+        /* li、按钮的动画时间样式 */
+        .wrapper li, button {
+            position: relative;
+            list-style: none;
+            width: 200px;
+            z-index: var(--i);
+            transition: 0.3s;
+            color: white;
+        }
+
+        /* 侧边伪图 */
+        .wrapper li::before, button::before {
+            position: absolute;
+            content: '';
+            background: #6d74e3;
+            top: 0;
+            left: -40px;
+            width: 40px;
+            height: 40px;
+            transform-origin: right;
+            transform: skewY(45deg);
+            transition: 0.3s;
+        }
+
+        /* 上面伪图 */
+        .wrapper li::after, button::after {
+            position: absolute;
+            content: '';
+            background: #6d74e3;
+            width: 200px;
+            height: 40px;
+            top: -40px;
+            left: 0;   
+            transform-origin: bottom;
+            transform: skewX(45deg);
+            transition: 0.3s;
+        }
+
+        /* 两个伪元素图的背景图 */
+        .wrapper li:nth-child(1)::after, .wrapper li:nth-child(1)::before {
+            background-color: #c5c8f8;
+        }
+
+        .wrapper li:nth-child(2)::after, .wrapper li:nth-child(2)::before {
+            background-color: #bbbef5;
+        }
+
+        .wrapper li:nth-child(3)::after, .wrapper li:nth-child(3)::before {
+            background-color: #9299f7;
+        }
+
+        /* 边框 */
+        li .input {
+            border: none;
+        }
+
+        /* ::placeholder说人话就表单文字背景 */
+        li .input::placeholder {
+            color: black;
+        }
+
+        /* 前面背景图 */
+        li:nth-child(1) .input {
+            background: #d8daf7;
+        }
+
+        li:nth-child(2) .input {
+            background: #c2c5f3;
+        }
+
+        li:nth-child(3) .input {
+            background: #989deb;
+        }
+
+        /* 选中焦点的背景图 */
+        li:nth-child(1) .input:focus {
+            outline: none;
+            border: 3.5px solid #d8daf7;
+        }
+
+        li:nth-child(2) .input:focus {
+            outline: none;
+            border: 3.5px solid #c2c5f3;
+        }
+
+        li:nth-child(3) .input:focus {
+            outline: none;
+            border: 3.5px solid #989deb;
+        }
+
+        /* 左滑动画 */
+        .wrapper li:hover, button:hover {
+            transform: translateX(-20px);
+        }
+
+        /* Submit的选中背景颜色与伪元素的背景 */
+        button:hover, button:hover::before, button:hover::after {
+            background: #575cb5;
+        }
+
+        /* Submit按下回到原位 */
+        button:active {
+            transform: translateX(0px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="conert">
+
+        <form class="form">
+            <ul class="wrapper">
+                <li style="--i:4;"><input class="input" type="text" placeholder="Name" required=""></li>
+                <li style="--i:3;"><input class="input" placeholder="Phone number" required="" name="phone"></li>
+                <li style="--i:2;"><input class="input" type="email" placeholder="E-mail" required="" name="email"></li>
+                <button style="--i:1;">Submit</button>
+            </ul>
+        </form>
+        
+    </div>
+</body>
+
+</html>
