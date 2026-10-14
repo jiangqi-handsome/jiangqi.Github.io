@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js 3D 动画</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing:
+                border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: #05060a;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .title {
+            position: fixed;
+            top: 28px;
+            left: 32px;
+            font: 600 14px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            letter-spacing: .3em;
+            color: #cfe0ff;
+            opacity: .75;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .hud {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            font: 12px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            letter-spacing: .12em;
+            color: rgba(190, 210, 255, .5);
+            user-select: none;
+            pointer-events: none;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title">THREE · 3D</div>
+    <div class="hud">拖拽旋转 · 滚轮缩放</div>
+
+    <!-- 用 importmap 直接从 CDN 加载 three（无需打包工具） -->
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+          }
+        }
+  </script>
+
+    <script type="module">
+        /** 
+         * 作者：jiangQi(我是一名自学者)
+         * 
+         * 这代码用于学习自我练习3D的场景开发和代码的练习
+         * 
+        */
+
+
+
+
+        /* ==================== 导入three和其余功能模块 ==================== */
+
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+        /* ==================== 1. 场景 / 相机 / 渲染器 ==================== */
+
+        // Scene创建一个场景，也可以视为空间。
+        const scene = new THREE.Scene();
+        // FogExp2 定义影响场景中渲染的所有内容的气雾类型
+        // FogExp2 参数：(雾气的颜色，雾气的浓度)
+        scene.fog = new THREE.FogExp2(0x05060a, 0.028);
+
+        // PerspectiveCamera 相机，也叫透视相机，它是渲染3D场景最常用的投影模式。
+        // PerspectiveCamera 相机参数：(垂直视野，长宽比，相机近裁剪，相机远裁剪)
+        const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 300);
+        // position 表示物体的局部位置。set(x, y, z)
+        camera.position.set(0, 2.2, 8.5);
+
+        // WebGLRenderer 是一个渲染器，
+        // 接受一个对象（{是否使用默认的 MSAA 默认false，向用户代理提供提示 指示哪种 GPU 配置适用于此 WebGL 上下文 默认 'default'}）
+        // 'high-performance'：高性能
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        // setPixelRatio设置给定的像素比率，并在必要时调整画布大小
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));   // 限制 2 倍，兼顾清晰与性能
+        // 将输出画布大小调整为 (width, height)，同时考虑设备像素比，并将视口设置为适合该大小，从 (0, 0) 开始
+        renderer.setSize(innerWidth, innerHeight);
+        // toneMapping 渲染器的色调映射，ACESFilmicToneMapping 色调映射
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        // toneMappingExposure 色调映射的曝光级别，默认值1
+        renderer.toneMappingExposure = 1.15;
+        // 创建元素
+        document.body.appendChild(renderer.domElement);
+
+        /* ==================== 2. 轨道控制器 ==================== */
+
+        // 轨道控制器（OrbitControls）可以使得相机围绕一个特定目标进行轨道运动
+        // OrbitControls 提供了轨道运动（旋转）、推拉（缩放）和位移（平移）功能。
+        // 与 TrackballControls 不同，它维持了“向上”的方向 object.up（默认为 +Y 轴）
+        const controls = new OrbitControls(camera, renderer.domElement);
+        // 设置为 true 以启用阻尼（惯性），这可以给控制器带来重量感
+        controls.enableDamping = true;        // 惯性阻尼
+        controls.dampingFactor = 0.06;
+        // 禁用相机平移，false 禁用，true 启用
+        controls.enablePan = false;
+        // 最大/最小，max 可以向外推拉多远，min 可以向内推拉多远
+        controls.minDistance = 4;
+        controls.maxDistance = 18;
+        // autoRotate 为 true 时，绕目标旋转的速度有多快
+        // 换绕目标做旋转，相机动不是物体在动
+        controls.autoRotate = true;           // 自动环绕
+        controls.autoRotateSpeed = 0.55;      // 换绕速度
+
+        /* ==================== 3. 灯光 ==================== */
+
+        // 在 scene 空间中添加光源
+        // HemisphereLight 一个位于场景正上方的光源，颜色从天空色渐变为地面色。此光源不能用于投射阴影
+        // 参数：(天空的颜色，地面的颜色，光的强度/亮度)
+        scene.add(new THREE.HemisphereLight(0x88aaff, 0x080820, 0.7));
+
+        // 一种从单个点向所有方向发射的光源。常见的用例是模拟裸灯泡发出的光，一个物体自发光
+        // 参数：(发散的颜色，光的强度(以坎德拉 (cd) 为单位)，光的最大范围，光沿距离衰减的程度)
+        const lightA = new THREE.PointLight(0x49a0ff, 90, 40, 2);  // 蓝
+        const lightB = new THREE.PointLight(0xff3fa4, 70, 40, 2);  // 红
+        // position 表示物体的位置，set 表示添加，参数：(x, y, z)
+        lightA.position.set(5, 5, 5);
+        lightB.position.set(-6, -3, -4);
+
+        // scene 空间中添加两种自发光
+        scene.add(lightA, lightB);
+
+        /* ==================== 4. 主体：环面纽结 ==================== */
+
+        // Mesh 基于三角多边形网格的对象的类
+        // kont 构建一个新的网格
+        // Mesh 参数：(网格几何体，网格材质(对象))
+        const knot = new THREE.Mesh(
+            // TorusKnotGeometry 创建一环形结（torus knot）
+            // 参考 three官网的几何图形，地址："https://threejs.org.cn/docs/?q=TorusKnotGeometry#TorusKnotGeometry"
+            // 参数：(环形结面积，管子的半径，管状段的数量，径向段的数量，几何体围绕其旋转对称轴绕行的次数，几何体围绕环面内部圆圈绕行的次数)
+            new THREE.TorusKnotGeometry(1.35, 0.42, 240, 36, 2, 3),
+            // MeshPhysicalMaterial 构造一个新的物理网格材质
+            // 参数：一个或多个属性的对象，用于定义材质的外观。材质的任何属性（包括从继承材质继承的任何属性）都可以在这里传递
+            new THREE.MeshPhysicalMaterial({
+                color: 0x1a5bff,
+                metalness: 0.95,
+                roughness: 0.14,
+                clearcoat: 1,
+                clearcoatRoughness: 0.08,
+                emissive: 0x1b3a8f,
+                emissiveIntensity: 0.5
+            })
+        );
+
+        // scene 空间中添加 knot(环形结)
+        scene.add(knot);
+
+        // 外层线框罩，制造科技感
+        // 和上面一样：几何图，材质
+        const shell = new THREE.Mesh(
+            // IcosahedronGeometry 构建一个新的正二十面体几何体，每一面都有三角组合
+            // 参考 three官网的几何图形：地址："https://threejs.org.cn/docs/?q=IcosahedronGeometry#IcosahedronGeometry"
+            // 参数：(二十四面的面积，增加顶点)
+            new THREE.IcosahedronGeometry(2.95, 4),
+            // MeshBasicMaterial 构造一个新的基础网格材质
+            // 参数：(一个或多个属性的对象，用于定义物体的材质和外观)
+            new THREE.MeshBasicMaterial({
+                color: 0x2f6bff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.16
+            })
+        );
+
+        // scene 的空间中添加 shell(多面三角面)
+        scene.add(shell);
+
+        /* ==================== 5. 粒子星云 ==================== */
+
+        // 用 canvas 生成一张圆形光点贴图，让粒子是圆的而不是方块
+        function makeDotTexture() {
+            // s 数量
+            const s = 64;
+            // 创建canvas·
+            const c = document.createElement('canvas');
+            // s 等于 canvas 的高宽
+            c.width = c.height = s;
+            // 获取 2D 上下文
+            const ctx = c.getContext('2d');
+            // 使用两个圆的坐标和大小来绘制径向渐变
+            // 参数：(x1, y1, r1, x2, y2, r2)
+            const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+
+            // CanvasGradient.addColorStop() 方法为给定的 canvas 渐变添加一个由偏移值（offset）和颜色值（color）指定的色标
+            g.addColorStop(0, 'rgba(255,255,255,1)');
+            g.addColorStop(0.35, 'rgba(255,255,255,0.6)');
+            g.addColorStop(1, 'rgba(255,255,255,0)');
+
+            // 填充颜色
+            ctx.fillStyle = g;
+            // 填充一个矩形
+            ctx.fillRect(0, 0, s, s);
+            
+            // 从 canvas 元素创建纹理，参数：(HTML canvas元素)
+            const tex = new THREE.CanvasTexture(c);
+            // colorSpace 包含颜色数据的纹理，SRGBColorSpace：SRGB 线性彩色空间
+            tex.colorSpace = THREE.SRGBColorSpace;
+
+            // 返回 tex（纹理数据）
+            return tex;
+        }
+
+        // 发光点数量
+        const COUNT = 1800;
+        // 创建32位的浮点数，可以想象成一个厂库
+        const positions = new Float32Array(COUNT * 3);
+        const colors = new Float32Array(COUNT * 3);
+
+        // Color 创建一个新的颜色，选颜色
+        const cNear = new THREE.Color('#3b7dff');
+        const cFar = new THREE.Color('#ff44c8');
+        const cWhite = new THREE.Color('#ffffff');
+        // Color 颜色为空
+        const tmpColor = new THREE.Color();
+
+        for (let i = 0; i < COUNT; i++) {
+            // 球壳内均匀随机取点
+
+            // 随机0~1的数，0.7是次方幂，5 + 随机^0.7 * 11 = r是半径
+            const r = 5 + Math.pow(Math.random(), 0.7) * 11;
+            // 随机0~1的数，随机数 * 圆周率 * 2 = theta是方位角
+            const theta = Math.random() * Math.PI * 2;
+            // 反余弦(2 * 随机数 - 1) = 极角
+            const phi = Math.acos(2 * Math.random() - 1);
+            // 正弦
+            const sinPhi = Math.sin(phi);
+
+            // 存放到 psoition 中
+            positions[i * 3] = r * sinPhi * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.cos(phi) * 0.7;   // 压扁一点，更像星系
+            positions[i * 3 + 2] = r * sinPhi * Math.sin(theta);
+
+            // 越远越偏紫红，并随机混一点白
+            // MathUtils 返回大于或等于给定数字的最小2的幂
+            // clamp 给定限制的min和max，参数：(要限制的值，最小范围，最大范围)
+            const t = THREE.MathUtils.clamp((r - 5) / 11, 0, 1);
+            // copy 将给定的颜色值复制当前实例中，lerp 讲当前颜色的RGB值向给定的RGB值进行线性插值
+            // 参数：（color，number(可以被认为是两种颜色之间的比率，其中 0.0 是当前颜色，1.0 是第一个参数)）
+            tmpColor.copy(cNear).lerp(cFar, t).lerp(cWhite, Math.random() * 0.35);
+
+            // 存放到 colors 中
+            colors[i * 3] = tmpColor.r;
+            colors[i * 3 + 1] = tmpColor.g;
+            colors[i * 3 + 2] = tmpColor.b;
+        }
+
+        // BufferGeometry 创建新的几何体
+        const particleGeo = new THREE.BufferGeometry();
+        // setAttribute(string, attribute)
+        // 缓冲属性 BufferAttribute(Array, number, boolean)
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        // Points 用于显示点或点云的类
+        // 参数：(点的几何体，点的材质(对象))
+        const particles = new THREE.Points(
+            particleGeo,
+            new THREE.PointsMaterial({
+                size: 0.09,
+                map: makeDotTexture(),
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.9,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            })
+        );
+
+        // 添加到 scene 场景空间中
+        scene.add(particles);
+
+        /* ==================== 6. 后期处理：泛光 ==================== */
+
+        // 效果合成器（EffectComposer(渲染器，渲染目标))
+        // 该类管理着一个后期处理通道链，以产生最终的视觉效果。后期处理通道按照它们添加/插入的顺序执行。最后一个通道会自动渲染到屏幕上
+        const composer = new EffectComposer(renderer);
+        // addPass 给定的通道添加到通道链中
+        // RenderPass 是一个渲染通道，它接受一个场景和一个相机
+        composer.addPass(new RenderPass(scene, camera));
+
+        // UnrealBloomPass 此通道的设计灵感来自虚幻引擎（Unreal Engine）的辉光（bloom）通道，
+        // 可以查看官方，地址：https://threejs.org.cn/docs/?q=UnrealBloomPass#UnrealBloomPass
+        // 构建一个新的 Unreal Bloom 通道
+        const bloom = new UnrealBloomPass(
+            new THREE.Vector2(innerWidth, innerHeight),
+            0.85,   // strength 强度
+            0.6,    // radius   扩散半径
+            0.72    // threshold 亮度阈值
+        );
+
+        composer.addPass(bloom);
+        composer.addPass(new OutputPass());   // 负责色调映射 + sRGB 输出
+
+        /* ==================== 7. 动画循环 ==================== */
+
+        const clock = new THREE.Clock();
+
+        renderer.setAnimationLoop(() => {
+            const t = clock.getElapsedTime();
+
+            // 主体自转 + 上下浮动
+            knot.rotation.x = t * 0.25;
+            knot.rotation.y = t * 0.35;
+            knot.position.y = Math.sin(t * 1.2) * 0.18;
+
+            // 发光强度呼吸
+            knot.material.emissiveIntensity = 0.45 + Math.sin(t * 2.0) * 0.25;
+
+            // 线框罩反向缓慢旋转
+            shell.rotation.y = -t * 0.12;
+            shell.rotation.x = t * 0.08;
+            shell.scale.setScalar(1 + Math.sin(t * 0.9) * 0.03);
+
+            // 粒子星云整体缓慢转动
+            particles.rotation.y = t * 0.025;
+
+            // 两盏点光源环绕运动，产生流动的高光
+            lightA.position.set(Math.cos(t * 0.8) * 5, Math.sin(t * 0.6) * 3 + 2, Math.sin(t * 0.8) * 5);
+            lightB.position.set(Math.cos(t * 0.5 + 2) * -5, Math.sin(t * 0.9) * -3, Math.sin(t * 0.5 + 2) * -5);
+
+            controls.update();
+            composer.render();
+        });
+
+        /* ==================== 8. 自适应窗口 ==================== */
+
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+            composer.setSize(innerWidth, innerHeight);
+        });
+    </script>
+</body>
+
+</html>
