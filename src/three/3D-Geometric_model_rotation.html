@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js 3D 交互练习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a0c;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .hud {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            font: 13px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            letter-spacing: .1em;
+            color: rgba(200, 220, 255, .6);
+            user-select: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hud">鼠标划过物体试试看 · 拖拽旋转 · 滚轮缩放</div>
+
+    <!-- 用 importmap 加载 Three.js 和 OrbitControls -->
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        /* ==================== 1. 场景 / 相机 / 渲染器 ==================== */
+
+        /* ==================== 1-1、场景 ==================== */
+
+        // Scene 创建3D空间场景
+        const scene = new THREE.Scene();
+        // 背景颜色
+        scene.background = new THREE.Color(0x0a0a0c);
+        // 添加一点淡淡的雾效，增加空间感
+        scene.fog = new THREE.Fog(0x0a0a0c, 10, 30);
+
+        /* ==================== 1-2、相机 ==================== */
+
+        // PerspectiveCamera 创建相机
+        // 参数：(垂直视野，高宽比，相机近处裁剪，相机远处裁剪)
+        const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+        // position：位置 set：添加(x，y，z)
+        camera.position.set(0, 4, 12);
+
+        /* ==================== 1-3、渲染器 ==================== */
+
+        // WebGLRenderer 是渲染器
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        // setPixelRatio 设置给定的像素比率，并在必要时调整画布大小
+        // devicePixelRatio 返回当前显示设备的物理像素分辨率与CSS 像素分辨率之比
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        // 将输出画布大小调整为 (width, height)，同时考虑设备像素比，并将视口设置为适合该大小，从 (0, 0) 开始
+        renderer.setSize(innerWidth, innerHeight);
+        // toneMapping 渲染器的色调映射算法 = ACESFilmicToneMapping 色调映射
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        // domElement 渲染器绘制其输出的画布
+        document.body.appendChild(renderer.domElement);
+
+        /* ==================== 2. 控制器 ==================== */
+
+        // OrbitControls 轨道运动（旋转）、推拉（缩放）和位移（平移）功能
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // 启用阻力，鼠标甩动有力的感觉，假设：我们丢石头，有力 ---> 有阻力
+        controls.dampingFactor = 0.05; // 表示阻力惯性，默认值：0.05
+        controls.enablePan = false;    // 启用或禁止相机平移，在这是个多余的！
+        controls.maxDistance = 25;     // 可以向外推拉多远（仅限透视相机）
+        controls.minDistance = 6;      // 可以向内推拉多远（仅限透视相机）
+        controls.target.set(0, 1, 0);  // 视角看向中心点稍上一点的位置，控制器的焦点，camera 绕着它(几何体)旋转
+        controls.autoRotate = false;    // 设置为 true 以自动绕目标旋转
+
+        /* ==================== 3. 灯光 ==================== */
+
+        // 什么是半球光，半球光是一个 three 中的光源，但是它只能照明，照射物体时只有表面有反射，如果物体足够光滑则可以实现映射，将画面映射到物体表面。
+        // 但是半球光，照射物体时没有影子，但是环境光增强：提升场景整体亮度，尤其是地面光通常较暗的区域。与其他光源结合：半球光可与点光源、方向光等结合使用，增强立体感和自然光效果
+        // 半球光，提供基础的环境照明，无法形成阴影，但是背面取决于第二个参数。
+        // 参数：(物体的上面颜色光，物体的下面颜色光，光的强度)
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.6));
+
+        // 一种向特定方向发射的光线。这种光线表现得就像它处于无限远处，且产生的所有光线都是平行的。
+        // 常见的用例是模拟日光；太阳足够远，以至于其位置可以被视为无限远，且从它发出的所有光线都是平行的
+        // 定向光/方向光，带来高光和阴影
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
+
+        // 其核心视觉规律可总结为两大核心特征： 
+        // 距离衰减性：光源与物体的间距越远，光能分布密度越低，物体受光亮度越暗，间距趋近于0时，亮度会远超光源基础亮度，贴合现实发光规律。
+        // 辅助的彩色点光源，增加趣味性
+        // 参数：(光的颜色，光的强度，最大范围，灯光沿距离衰减的程度)
+        const pointLight1 = new THREE.PointLight(0x00ffff, 30, 20, 2);
+        pointLight1.position.set(-5, 3, 5);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xff00ff, 30, 20, 2);
+        pointLight2.position.set(5, -3, -5);
+        scene.add(pointLight2);
+
+        /* ==================== 4. 创建多个可交互的物体 ==================== */
+
+        const objects = []; // 把物体存进数组，方便统一管理和交互检测
+
+        // 定义几种几何体和颜色
+        const geometries = [
+            new THREE.BoxGeometry(1.2, 1.2, 1.2), // 创建一个几何矩形模型(宽度，高度，深度)
+            new THREE.SphereGeometry(0.8, 32, 32), // 创建一个几何球体模型(求的半径，水平分段数（最小值是3），垂直分段数（最小值是2）)
+            new THREE.TorusGeometry(0.7, 0.25, 16, 32), // 创建一个圆环几何
+            new THREE.ConeGeometry(0.8, 1.5, 32), // 创建一个圆锥几何
+            new THREE.IcosahedronGeometry(0.8, 0) // 创建一个二十四面体多边形
+        ];
+
+        // 几何体的颜色
+        const colors = [0x3b7dff, 0xff44c8, 0x00e5ff, 0xffb300, 0x00ff88];
+
+        // 循环创建 15 个物体，呈圆形排列
+        const count = 15;
+        for (let i = 0; i < count; i++) {
+            // 随机挑选几何体和颜色
+            const geo = geometries[i % geometries.length];
+            const color = colors[i % colors.length];
+
+            // 创建材质：使用 MeshStandardMaterial 配合灯光，能有真实的金属反光
+            const mat = new THREE.MeshStandardMaterial({
+                color: color,             // 颜色
+                roughness: 0.3,           // 粗糙度
+                metalness: 0.8,           // 金属度
+                emissive: 0xffffff,       // 初始无自发光
+                emissiveIntensity: 0      // 光的强度
+            });
+
+            // 将几何和材质结合
+            const mesh = new THREE.Mesh(geo, mat);
+
+            // 计算物体在圆环上的位置
+            const angle = (i / count) * Math.PI * 2;
+            const radius = 5.5; 
+            mesh.position.x = Math.cos(angle) * radius;
+            mesh.position.z = Math.sin(angle) * radius;
+            mesh.position.y = 1 + Math.sin(i * 1.5) * 0.5; // 让高度有些起伏
+
+            // 给物体一些随机初始旋转
+            mesh.rotation.x = Math.random() * Math.PI;
+            mesh.rotation.y = Math.random() * Math.PI;
+
+            // 保存初始状态，以便鼠标移出时恢复
+            mesh.userData.originalScale = 1;
+            mesh.userData.hovered = false;
+
+            // 添加入场景空间中
+            scene.add(mesh);
+            objects.push(mesh); // 存入数组
+        }
+
+        // CircleGeometry 创建一个平的圆(半径，三角数量)
+        // 在中心加一个地面圆盘做视觉参考
+        const planeGeo = new THREE.CircleGeometry(7, 64);
+        const planeMat = new THREE.MeshStandardMaterial({
+            color: 0x111116,
+            roughness: 0.8,
+            metalness: 0.2,
+            side: THREE.DoubleSide
+        });
+        
+        const plane = new THREE.Mesh(planeGeo, planeMat);
+        plane.rotation.x = -Math.PI / 2;
+        plane.position.y = -1.5;
+
+        // 添加入场景空间中
+        scene.add(plane);
+
+        /* ==================== 5. 鼠标交互核心（Raycaster 射线拾取） ==================== */
+
+        const raycaster = new THREE.Raycaster(); // 射线投射器
+        const mouse = new THREE.Vector2();       // 记录鼠标的归一化坐标 (-1 到 1)
+
+        // 监听鼠标移动事件
+        window.addEventListener('mousemove', (event) => {
+            // 将屏幕坐标（像素）转换为归一化设备坐标（NDC）
+            // X 轴：从左到右映射为 -1 到 1
+            mouse.x = (event.clientX / innerWidth) * 2 - 1;
+            // Y 轴：从下到上映射为 -1 到 1，注意这里要反转一下
+            mouse.y = -(event.clientY / innerHeight) * 2 + 1;
+        });
+
+        /* ==================== 6. 动画循环 ==================== */
+
+        // Clock 创建一个时钟
+        const clock = new THREE.Clock();
+
+        // setAnimationLoop 循环动画 / 可以将上面的 99行 controls.autoRotate = false;    // 设置为 true 以自动绕目标旋转
+        renderer.setAnimationLoop(() => {
+            const t = clock.getElapsedTime(); // 返回以秒为单位的经过时间
+
+            // 1. 更新射线，从相机发射，基于鼠标位置
+            // setFromCamera 使用给定的坐标和相机来为内部光线计算一个新的起点和方向
+            raycaster.setFromCamera(mouse, camera);
+
+            // 2. 检测射线与哪些物体相交
+            const intersects = raycaster.intersectObjects(objects);
+
+            // 3. 先重置所有物体的高亮状态
+            objects.forEach(obj => {
+                if (obj.userData.hovered) {
+                    obj.userData.hovered = false;
+                    // 平滑地恢复到原始状态（这里用简单的插值或直接设置，为了简洁直接设置）
+                    obj.scale.set(1, 1, 1);
+                    obj.material.emissive.setHex(0x000000);
+                    obj.material.emissiveIntensity = 0;
+                }
+            });
+
+            // 4. 如果有物体被击中，高亮第一个被击中的物体
+            if (intersects.length > 0) {
+                const hit = intersects[0].object; // object 引用 3D 物体
+                hit.userData.hovered = true;
+                // 放大效果
+                hit.scale.set(1.3, 1.3, 1.3);
+                // 让物物体自发光（亮起）
+                hit.material.emissive.setHex(hit.material.color.getHex());
+                hit.material.emissiveIntensity = 0.8;
+            }
+
+            // 5. 让所有物体持续缓慢自转
+            objects.forEach((obj) => {
+                obj.rotation.x += 0.005;
+                obj.rotation.y += 0.008;
+                // 上下浮动的动画
+                // 注意：这里用 userData 保存初始 Y 坐标会更严谨，为了代码简单，直接用 sin 函数
+            });
+
+            // 让点光源绕场旋转，制造流光效果
+            pointLight1.position.x = Math.cos(t * 0.8) * 6;
+            pointLight1.position.z = Math.sin(t * 0.8) * 6;
+            pointLight2.position.x = Math.cos(t * 0.5 + 2) * -6;
+            pointLight2.position.z = Math.sin(t * 0.5 + 2) * -6;
+
+            controls.update();
+            renderer.render(scene, camera);
+        });
+
+        /* ==================== 7. 自适应窗口 ==================== */
+
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+        });
+    </script>
+</body>
+
+</html>
