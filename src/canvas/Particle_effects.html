@@ -139,17 +139,17 @@
             }
 
             // 鼠标按下和松开
-            // mousedown 事件在点设备（如鼠标或触摸板）按钮在元素内按下时 = 按下
-            // mouseup 按下移动鼠标 = 按着鼠标移动
-            // mousemove 事件在点设备（通常指鼠标）的光标在元素内移动时，会在该元素上触发 = 放开
+            // mousedown 事件在点设备（如鼠标或触摸板）按钮在元素内按下时
+            // mouseup 按下移动鼠标
+            // mousemove 事件在点设备（通常指鼠标）的光标在元素内移动时，会在该元素上触发
             window.addEventListener('mousedown', () => isDrawing = true);
             window.addEventListener('mouseup', () => isDrawing = false);
             window.addEventListener('mousemove', handleMove);
 
             // 触摸屏
-            // touchstart 事件在一个或多个触点与触控设备表面接触时被触发 = 开始触摸
-            // touchend 事件在一个或多个触点从触控平面上移开时触发 = 触摸移动
-            // touchmove 事件在触点于触控平面上移动时触发 = 松开触摸
+            // touchstart 事件在一个或多个触点与触控设备表面接触时被触发
+            // touchend 事件在一个或多个触点从触控平面上移开时触发
+            // touchmove 事件在触点于触控平面上移动时触发
             window.addEventListener('touchstart', (e) => { isDrawing = true; handleMove(e); });
             window.addEventListener('touchend', () => isDrawing = false);
             window.addEventListener('touchmove', handleMove);
