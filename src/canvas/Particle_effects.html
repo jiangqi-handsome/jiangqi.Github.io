@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粒子拖尾特效</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: #050505;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .hud {
+            position: fixed;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            font: 14px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.4);
+            user-select: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hud">按住鼠标滑动 · 粒子特效</div>
+    <canvas id="myCanvas"></canvas>
+
+    <script>
+        function loop() {
+            // 获取 2D 绘制上下文
+            const canvas = document.getElementById('myCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // 设置画布的尺寸
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
+            function resize() {
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            // 创建一个空数组来存储
+            // 粒子存储数组和鼠标状态
+            const particles = [];
+            let mouse = {
+                x: width / 2,
+                y: height / 2,
+            }
+
+            let isDrawing = false; // 检查鼠标是否按下。false为没有按下，true表示按下
+            let hue = 0; // 用于控制颜色的色调（HSL）
+
+            // 4、定义粒子类
+            class Particle {
+
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+
+                    // 随机速度，向四周散开
+                    this.vx = (Math.random() - 0.5) * 6;
+                    this.vy = (Math.random() - 0.5) * 6;
+
+                    // 小球的大小
+                    this.size = Math.random() * 5 + 1;
+
+                    // 小球的生命周期
+                    this.life = 3;
+
+                    // 每一小球的衰减时间（每一帧减多少声明值）
+                    this.decay = Math.random() * 0.02 + 0.01;
+                }
+
+                // 更新粒子的位置和状态
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // 增加摩擦力（触发小球四周发散速度慢慢变慢）
+                    this.vx *= 0.96;
+                    this.vy *= 0.96;
+
+                    // 生命周期衰减
+                    this.life -= this.decay;
+                }
+
+                // 绘制自己
+                draw() {
+                    // 使用 HSL 颜色模式，色相跟着全局 hue 走，亮度是 70%，饱和度 100%
+                    ctx.fillStyle = `hsla(${hue}, 100%, 70%, ${this.life})`;
+
+                    ctx.beginPath();
+
+                    // 绘制一个圆
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill(); // 填充
+                }
+            }
+
+            // 5、鼠标、触摸事件监听
+            function handleMove(e) {
+                // ？ 条件判断：如果条件真值，则选左的表达式。如果条件假值，就选右边的表达式 = 真/假 ? 左 ：右 
+                // touches 在JavaScript中，TouchEvent对象的touches属性表示触摸屏幕时所有手指或触点的集合。
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                mouse.x = clientX;
+                mouse.y = clientY;
+
+                // 粒子的生成数量：i < y
+                // 如果鼠标按下，则在当前位置生成 3 个粒子
+                if (isDrawing) {
+                    for (let i = 0; i < 10; i++) {
+                        particles.push(new Particle(mouse.x, mouse.y));
+                    }
+                }
+            }
+
+            // 鼠标按下和松开
+            // mousedown 事件在点设备（如鼠标或触摸板）按钮在元素内按下时 = 按下
+            // mouseup 按下移动鼠标 = 按着鼠标移动
+            // mousemove 事件在点设备（通常指鼠标）的光标在元素内移动时，会在该元素上触发 = 放开
+            window.addEventListener('mousedown', () => isDrawing = true);
+            window.addEventListener('mouseup', () => isDrawing = false);
+            window.addEventListener('mousemove', handleMove);
+
+            // 触摸屏
+            // touchstart 事件在一个或多个触点与触控设备表面接触时被触发 = 开始触摸
+            // touchend 事件在一个或多个触点从触控平面上移开时触发 = 触摸移动
+            // touchmove 事件在触点于触控平面上移动时触发 = 松开触摸
+            window.addEventListener('touchstart', (e) => { isDrawing = true; handleMove(e); });
+            window.addEventListener('touchend', () => isDrawing = false);
+            window.addEventListener('touchmove', handleMove);
+
+            // 6、动画循环
+            function animate() {
+                // 我这里不用 clearRect 清空画布，而是用半透明的黑色矩形覆盖，可以说是根本没有清掉，只是被黑原色矩形覆盖了
+                // 仔细观察，还会留有残影，可以将 fillRect 绘制矩形注释
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.1)';
+                ctx.fillRect(0, 0, width, height);
+ 
+                // 更新全局色相，让颜色不断循环（0-360）
+                hue += 1;
+                if (hue > 360) hue = 0;
+
+                // 遍历所有粒子，更新位置并绘制
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    p.update();
+                    p.draw();
+
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                }
+
+                // 触发循环动画
+                requestAnimationFrame(animate)
+            }
+
+            animate(); // 初始化
+        }
+
+        loop() // 初始化
+    </script>
+</body>
+
+</html>
