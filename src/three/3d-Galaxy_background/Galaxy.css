@@ -1,0 +1,15 @@
+* {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow: hidden;
+    background-color: #020205;
+}
+
+canvas {
+    display: block;
+}
