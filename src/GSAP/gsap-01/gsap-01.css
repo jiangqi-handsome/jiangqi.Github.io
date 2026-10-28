@@ -1,0 +1,132 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #ffffff;
+    color: #111;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+.img-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.img-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.hero h1 {
+    font-size: 8vw;
+    font-weight: 900;
+    user-select: none;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    background: transparent;
+    background-clip: text;
+    color: rgba(7, 6, 6, 0.21);
+    text-shadow: none;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 120%;
+    z-index: -1;
+    background: transparent;
+}
+
+.parallax-section {
+    padding: 150px 10vw;
+    display: flex;
+    flex-direction: column;
+    gap: 200px;
+}
+
+.parallax-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.parallax-row:nth-child(even) {
+    flex-direction: row-reverse;
+}
+
+.parallax-text {
+    width: 40%;
+    font-size: 2rem;
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+.parallax-image {
+    width: 55%;
+    height: 500px;
+    box-shadow: 0 30px 60px rgba(41, 39, 39, 0.1);
+}
+
+.interactive-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fafafa;
+    overflow: hidden;
+    position: relative;
+}
+
+.trigger-btn {
+    padding: 20px 50px;
+    font-size: 1.5rem;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.3s;
+}
+
+.trigger-btn:hover {
+    transform: scale(1.05);
+}
+
+.card {
+    position: absolute;
+    width: 250px;
+    height: 350px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    top: 50%;
+    left: 50%;
+    margin-top: -170px;
+    margin-left: -125px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.card .img-placeholder {
+    border-radius: 10px;
+}
