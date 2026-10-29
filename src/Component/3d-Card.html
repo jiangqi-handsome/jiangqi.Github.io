@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3d卡牌</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .card-wrapper {
+            perspective: 1000px;
+            border: 5px solid #4f4e4e;
+            border-radius: 20px;
+        }
+
+        .card {
+            width: 320px;
+            height: 420px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transform-origin: preserve-3d;
+            position: relative;
+            padding: 30px;
+            display: flex;
+            user-select: none;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .card-content {
+            transform: translateZ(50px);
+        }
+
+        .card h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8), transparent);
+        }
+    </style>
+</head>
+<body>
+    <div class="card-wrapper">
+        <div class="card" id="card">
+            <div class="glare" id="glare">
+                <img style="width: 310px; height: 410px; object-fit: cover; border-radius: 20px;" src="https://c-ssl.dtstatic.com/uploads/blog/202201/06/20220106131410_54098.thumb.1000_0.jpeg" alt="">
+            </div>
+            <div class="card-content">
+                <h2>Genshin Impact</h2>
+                <p>胡桃</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取元素
+        const card = document.getElementById('card');
+        const glare = document.getElementById('glare');
+
+        // 记录鼠标在页面上的位置
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+
+        // 记录卡片当前的旋转状态
+        let currentRotateX = 0;
+        let currentRotateY = 0;
+
+        // 记录卡片旋转的速度
+        let velocityX = 0;
+        let velocityY = 0;
+
+        // 物理参数：弹簧劲度(k)，阻力，最大旋转角度
+        const springStiffness = 0.08;
+        const damping = 0.75;
+        const maxRotate = 30;
+
+        // 监听鼠标位置
+        window.addEventListener('mousemove', (e) => {
+            // 获取当前的鼠标位置
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // 计算鼠标相对于卡片中心的偏移量
+            const rect = card.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+
+            // 将鼠标偏移量映射为(旋转角度)
+            const targetRotateY = ((mouseX - cardCenterX) / (window.innerWidth / 2)) * maxRotate;
+            const targetRotateX = -((mouseY - cardCenterY) / (window.innerHeight / 2)) * maxRotate;
+
+            // 计算高光位置
+            const glareX = mouseX - rect.left;
+            const glareY = mouseY - rect.top;
+            glare.style.background = `radial-gradient(circle at ${glareX}px ${glareY}px, rgba(255, 255, 255, 0.8), transparent 60%)`;
+
+            // 存
+            card.dataset.targetX = targetRotateX;
+            card.dataset.targetY = targetRotateY;
+        });
+
+        // 监听鼠标离开视口
+        document.addEventListener('mouseleave', () => {
+            // 鼠标离开视口元素自动回正
+            card.dataset.targetX = 0;
+            card.dataset.targetY = 0;
+        });
+
+        /**
+         * 物理循环、动画循环
+         * @updatePhysics()
+         * 
+        */
+        function updatePhysics() {
+            // 获取目标角度（默认：0），parseFloat返回一个浮点数
+            const targetX = parseFloat(card.dataset.targetX) || 0;
+            const targetY = parseFloat(card.dataset.targetY) || 0;
+
+            // 物理理论：胡克定律 F = k * x
+            // 弹簧力 = 弹簧系数 * 距离差。距离目标越远，拉力越大
+            const forceX = (targetX - currentRotateX) * springStiffness;
+            const forceY = (targetY - currentRotateY) * springStiffness;
+
+            // 将力施加到速度上（质量 m = 1，；力直接等于加速度）
+            velocityX += forceX;
+            velocityY += forceY;
+
+            // 阻力振动：摩擦力会让速度衰减
+            velocityX *= damping;
+            velocityY *= damping;
+
+            // 欧拉积分：角度随着速度变
+            currentRotateX += velocityX;
+            currentRotateY += velocityY;
+
+            card.style.transform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+
+            requestAnimationFrame(updatePhysics);
+        }
+
+        // 初始化
+        updatePhysics();
+    </script>
+</body>
+</html>
