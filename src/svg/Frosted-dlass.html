@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .gooey-wrapper {
+            filter: url(#goo);
+            position: relative;
+        }
+
+        .nav-container {
+            display:flex;
+            /* background: #1c1c24; */
+            background-image: url(https://ts1.tc.mm.bing.net/th/id/OIP-C.qSl5h7W6hqRSOkdCk9nvlwHaLJ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3);
+            background-position: 0px -125px;
+            background-size: cover;
+            padding: 10px;
+            outline: solid 10px rgba(232, 222, 176, 0.5);
+            border-radius: 50px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item {
+            position: relative;
+            padding: 16px 32px;
+            color: #8b8b99;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2;
+            transition: color 0.4s ease;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+        }
+
+        .liquid-blob {
+            position: absolute;
+            top: 10px;
+            /* 
+            W3C官网 / CSS：https://drafts.csswg.org/css-values-4/#funcdef-calc
+            calc() 函数包含一个计算，它是一列与算符交错的数值序列，并可能用括号分组 （与<微积分和>语法相匹配）。 
+            */
+            height: calc(100% - 20px);
+            /* background: #ff3366; */
+            background: rgba(86, 85, 85, 0.5);
+            border-radius: 50px;
+            z-index: 1;
+
+            /* 
+            cubic-bezier()三次贝塞尔曲线函数，定义了一个时间函数，描述了动画的速度曲线。
+            参数：(x1, y1, x2, y2) 四个参数分别表示两个控制点的坐标，范围在0到1之间。
+
+            W3C官网 / CSS：https://drafts.csswg.org/css-easing-1/#valdef-cubic-bezier-easing-function-ease
+            cubic-bezier() 三次贝塞尔理解成为一种由四个实数定义的缓解函数，指定了三次贝塞尔曲线的两个控制点，且
+            使得端点和分别固定在（0， 0）和（1， 1）。坐标限制在 [0，1] 范围内。
+             */
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            left: 10px;
+            width: 100px;
+        }
+
+        .nav-text {
+            position: relative;
+            z-index: 3;
+        }
+
+        .svg-filter {
+            position: absolute;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+    </style>
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 
+    自我介绍：
+    我是jiangQi，是一名自学者，也是计算机图形学的爱好者。我在学习SVG滤镜的过程中做了很多笔记，里面有很多注释和例子。
+    理解的过程中用到了AI辅助工具，帮助我更好地理解SVG滤镜的原理和应用，我不会一开始就去使用AI辅助工具，
+    而是先自己去理解SVG滤镜的原理和应用（查看官网文档给出方向），
+    然后再使用AI辅助工具来帮助我更好地理解和应用SVG滤镜。
+
+    重点：我学过的知识点，我可能不在标注注释了，所以你可以会看到有的地方没有标注或例子。但是我会少量的表注一点关键信息。
+
+    在我的学习中理解某个事物时，我会标注许多注释与比如。你看到这么多的注释时请不要感到困惑。
+
+    When I understand something in my studies, I will annotate many comments and examples.
+    Don't feel confused when you see so many comments 
+
+    谢谢观看！Thabk you for watching!
+    -->
+
+    <svg class="svg-filter">
+        <!-- <defs> 元素内创建的对象不会被直接渲染 -->
+        <defs>
+            <!-- <filter> 是作为原子滤镜操作的容器 -->
+            <filter id="goo">
+
+                <!-- 1、高斯模糊(只是模糊) -->
+                <!-- 
+                Source Graphic: 原始图形
+                stdDeviation: 模糊半径，值越大，模糊程度越高
+                result: 结果图形的名称，后续可以通过这个名称来引用这个图形
+                -->
+                <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+
+                <!-- 2、颜色矩阵（给模糊效果添加颜色） -->
+                <!-- （values 通道对比度增强）values 是一个 5x4 的矩阵，前四列分别对应 RGBA 四个通道，最后一列是偏移量 -->
+                <!-- 
+                in: 输入图形的名称
+                mode: 矩阵模式
+                values: 颜色矩阵的值
+                result: 结果图形的名称，后续可以通过这个名称来引用这个图形
+                -->
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        0 0 0 19 -9" result="goo" />
+
+                <!-- 3、合并图形（将模糊效果和颜色矩阵效果合并） -->
+                <feBlend in="SourceGraphic" in2="goo" operator="atop" />
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- 主体 -->
+    <div class="gooey-wrapper">
+        <div class="nav-container" id="nav">
+            <div class="liquid-blob" id="blob"></div>
+
+            <div class="nav-item" date-index="0"><span class="nav-text">首页</span></div>
+            <div class="nav-item" date-index="1"><span class="nav-text">项目</span></div>
+            <div class="nav-item" date-index="2"><span class="nav-text">关于</span></div>
+            <div class="nav-item" date-index="3"><span class="nav-text">联系</span></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取导航容器和液体形状元素
+        const navItems = document.querySelectorAll('.nav-item');
+        const blob = document.getElementById('blob');
+
+        // 当鼠标移入某一个 item 时，获取它的宽度和左侧偏移量
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', (e) => {
+                // offsetWidth: 元素的宽度
+                // offsetLeft: 距离父元素左侧的偏移量
+                const width = item.offsetWidth;
+                const left = item.offsetLeft;
+                
+                // 将液体形状的宽度和左侧偏移量设置为当前 item 的宽度和左侧偏移量
+                blob.style.width = `${width}px`;
+                blob.style.left = `${left}px`;
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            // 当窗口大小改变时，重新计算液体形状的位置和宽度
+            const activeItem = document.querySelector('.nav-item.active');
+            if (activeItem) {
+                const width = activeItem.offsetWidth;
+                const left = activeItem.offsetLeft;
+                blob.style.width = `${width}px`;
+                blob.style.left = `${left}px`;
+            }
+        });
+
+        window.addEventListener('load', () => {
+            // 页面加载完成后，设置液体形状的初始位置和宽度
+            const activeItem = document.querySelector('.nav-item.active');
+            if (activeItem) {
+                const width = activeItem.offsetWidth;
+                const left = activeItem.offsetLeft;
+                blob.style.width = `${width}px`;
+                blob.style.left = `${left}px`;
+            }
+        });
+    </script>
+</body>
+
+</html>
