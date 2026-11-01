@@ -1,0 +1,15 @@
+# system junk
+.DS_Store
+Thumbs.db
+
+# Compiler_Cache
+.vscode/
+.idea/
+
+# Package_dependencies
+node_modules/
+dist/
+
+# Logs_temporary-files
+*.log
+*.tmp
