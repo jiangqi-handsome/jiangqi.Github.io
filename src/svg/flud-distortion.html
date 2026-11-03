@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #05050a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .fluid-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 255, 255, 0.2) 0%, transparent 60%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 0, 150, 0.2) 0%, transparent 60%);
+            filter: blur(40px);
+            z-index: 0;
+        }
+
+        .fluid-svg {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            pointer-events: none;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .content h1 {
+            font-size: 3rem;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .content p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 我的注释来源于 MDN W3C 等各大文档与我自己的想象，我也在学习中使用 AI 辅助。数学与物理等有书籍网络与自己的理解与 AI -->
+     
+    <div class="fluid-container" id="container">
+        <div class="glow-bg"></div>
+
+            <svg class="fluid-svg" viewBox="0 0 600 600">
+                <!-- defs 的后代元素不会直接渲染 -->
+                <defs>
+                    <!-- filter 滤波器 -->
+                    <!-- 滤波器的参数：(x, y, width, height) -->
+                    <!-- 滤镜在我的学习中我把它理解为一种图像处理效果，层层的方式叠加的，就像ps画画一样 -->
+                    <filter id="noise-filter" x="-20%" y="-20%" width="150%" height="140%">
+                        <!-- ========== 1、分形噪声 ========== -->
+                        <!-- feTurbulence 元素用于创建效果 -->
+                        <!-- feTurbulence 参数：(id, 分形噪声，频率，振幅，迭代次数) -->
+                        <!-- 
+                        分形噪声：分形噪声是一种计算机生成的分形几何学、具有自相似性的随机信号，常用于生成自然纹理和图案。还需理解频率、振幅和迭代叠加对最终图案的影响
+                        数学上，分形噪声是一种具有自相似性和随机性的信号，可以通过迭代叠加不同频率和振幅的噪声来生成复杂的纹理效果。
+                        分形噪声在计算机图形学中广泛应用于生成自然纹理、地形、云彩等。
+
+                        频率：频率决定了噪声的细节程度，较高的频率会产生更多的细节和更小的纹理，而较低的频率则会产生更平滑和更大的纹理。
+                        学过数学函数里的正弦函数和余弦函数的频率概念，频率越高，波动越快，纹理越细腻；频率越低，波动越慢，纹理越粗糙。
+
+                        振幅：振幅控制噪声的强度或幅度，较高的振幅会产生更明显的噪声效果，而较低的振幅则会产生更柔和的效果。
+                        如果你学过物理学与数学的三角函数的振幅概念，振幅越大，波动越明显，纹理越强烈；振幅越小，波动越平缓，纹理越柔和。
+                        物理学中振幅是指波动的最大偏离值，表示波动的强度和幅度。在数学中，振幅通常用于描述正弦函数和余弦函数的最大值，表示波动的高度和强度。
+                        振幅越大，波动越明显，纹理越强烈；振幅越小，波动越平缓，纹理越柔和。
+
+                        迭代叠加：迭代叠加是指将多个不同频率和振幅的噪声叠加在一起，以创建更复杂和丰富的纹理效果。通过调整这些参数，可以生成各种不同风格和效果的分形噪声，从而实现多样化的视觉表现。
+                        迭代叠加我们可以想象成在数学函数中叠加多个不同频率和振幅的正弦函数，形成更复杂的波形。
+                        通过调整这些参数，可以生成各种不同风格和效果的分形噪声，从而实现多样化的视觉表现。
+                        若果你不知道数学的话，可以理解为在图像上叠加不同的纹理层，每一层都有不同的细节和强度，从而形成更丰富和复杂的视觉效果。
+                        像积木一样叠加不同的纹理层，每一层都有不同的细节和强度，从而形成更丰富和复杂的视觉效果。
+
+                        result：result 属性用于指定滤镜效果的输出结果的名称，以便在后续的滤镜操作中引用该结果。通过为滤镜效果命名，可以在滤镜链中进行更复杂的图像处理和组合。
+                        通过为滤镜效果命名，可以在滤镜链中进行更复杂的图像处理和组合。
+                        result 属性的值可以在后续的滤镜操作中作为输入使用，从而实现更复杂的图像处理效果。可以看成 result 当成 id 来理解就行了，没必要去深究。
+                        就这么理解就行了，没必要去深究。
+                        -->
+                        <feTurbulence id="turbulence" type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" />
+
+                        <!-- ========== 2、置换贴图 ========== -->
+                        <!-- feDisplacementMap 参数：(滤镜，滤镜2，缩放因子，x, y, result) -->
+                        <!-- 
+                        in: 属性用于指定滤镜效果的输入，就是引用滤镜 
+                        in2: 属性用于指定滤镜效果的第二个输入，通常用于与第一个输入进行组合或比较
+                        scale: 属性用于指定位移的缩放因子，控制位移的强度和范围
+                        xChannelSelector: 属性用于选择用于位移的输入图像的颜色通道
+                        yChannelSelector: 属性用于选择用于位移的输入图像的另一个颜色通道
+                        result: 属性用于指定滤镜效果的输出结果的名称，以便在后续的滤镜操作中引用该结果
+                        -->
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+
+                        <!-- ========== 3、高斯模糊 ========== -->
+                        <!-- feGaussianBlur 参数：(滤镜，stdDeviation，result) -->
+                        <!-- stdDeviation: 模糊半径，值越大，模糊程度越高 -->
+                        <feGaussianBlur in="displaced" stdDeviation="2" result="blurred" />
+
+                        <!-- 将模糊后的图像作为最终输出 --> 
+                        <!-- MDN <feMerge> SVG 元素允许滤镜效果并发应用，而不是依次应用 -->
+                        <feMerge>
+                            <!-- <feMergeNode> 元素用于指定滤镜效果的输入 -->
+                            <feMergeNode in="blurred" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+
+                    <!-- 渐变填充 -->
+                    <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(0, 255, 255, 0.4)" />
+                        <stop offset="50%" stop-color="rgba(100, 0, 255, 0.1)" />
+                        <stop offset="100%" stop-color="rgba(255, 0, 150, 0.4)" />
+                    </linearGradient>
+                </defs>
+
+                <!-- 应用滤镜 -->
+                <path id="fluid-shape" class="fluid-path"
+                d="M 300 80 C 420 80, 520 180, 520 300 C 520 420, 420 520, 300 520 C 180 520, 80 420, 80 300 C 80 180, 180 80, 300 80 Z"
+                fill="url(#glass-grad)"
+                stroke="rgba(255, 255, 255, 0.2)"
+                stroke-width="4"
+                filter="url(#fluid-filter)" />
+            </svg>
+
+            <div class="content">
+                <h1>JIANGQI</h1>
+                <p>Move the mouse to.</p>
+            </div>
+    </div>
+
+    <div class="hint">Move the mouse to interact with the fluid shape.</div>
+
+    <script>
+        // 获取 DOM 元素
+        const container = document.getElementById('container');
+        const turbulence = document.getElementById('turbulence');
+        const fluidShape = document.getElementById('fluid-shape');
+
+        // 数据参数
+        let currentScale = 30; // 当前扭曲强度
+        let targetScale = 30; // 目标扭曲强度
+        let noiseOffset = 0; // 噪声偏移量
+
+        // 鼠标移动事件监听
+        container.addEventListener('mouseenter', () => { targetScale = 80; }); // 悬停
+        container.addEventListener('mouseleave', () => { targetScale = 20; }); // 离开
+        container.addEventListener('mousemove', (e) => {
+            // 准备数据
+            const rect = container.getBoundingClientRect(); // 提供了元素的大小及其相对于视口的位置
+
+            // e.ClientX 返回鼠标在这个元素中的坐标
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 计算鼠标距离中心的距离
+            const dist = Math.hypot(x - rect.width / 2, y - rect.height / 2);
+
+            // 距离越近，拉扯感越强
+            targetScale = 30 + (1 - dist / (rect.width / 2)) * 60;
+        });
+
+        // 动画循环与使用
+        function animate() {
+            // 弹簧阻力(平滑)
+            currentScale += (targetScale - currentScale) * 0.1;
+
+            // 给 path 元素修改属性
+            fluidShape.setAttribute('filter', `url(#noise-filter)`);
+
+            const dispMap = document.querySelector('feDisplacementMap');
+            // 修改因子
+            dispMap.setAttribute('scale', currentScale);
+
+            // 这采用（时间驱动）并非（事件驱动）
+            // 如果想理解：CSDN：https://blog.csdn.net/MiKiJT/article/details/137465032
+            // 玻尔科学： https://www.bohrium.com/sciencepedia/feynman/neuromorphic_and_brain-inspired_computing_graduate-event-driven_and_time-stepped_simulation_methods#%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E4%B8%8E%E6%97%B6%E9%97%B4%E6%AD%A5%E8%BF%9B%E6%A8%A1%E6%8B%9F%E6%96%B9%E6%B3%95
+
+            // 我认为一个时间现实中的风、树、自然、动物等等都不是我们能够控制的，我们不可能控制他们的时间，但是他们的事件我们可以控制。
+            // 比如我放牛，我可以在山上，也可以在山脚、荒地等。这是有我们来控制
+
+            // 事件是一种动作要做什么，你可以认为时间也是，但是时间可以在事件的上层，静止往往我们看作为没有时间的法则；有了动作、动画就会有时间的诞生。
+            noiseOffset += 0.002;
+
+            // 基础频率 0.01到0.03 之间振荡
+            const freqX = 0.015 + Math.sin(noiseOffset) * 0.005;
+            const freqY = 0.015 + Math.cos(noiseOffset * 0.8) * 0.005;
+
+            // 连续的流体扭曲
+            turbulence.setAttribute('baseFrequency', `${freqX} ${freqY}`);
+
+            // 噪声的种子
+            turbulence.setAttribute('seed', Math.floor(noiseOffset * 100) % 1000);
+
+            // 循环调用
+            requestAnimationFrame(animate);
+        }
+
+        // 初始化、（启动）
+        animate()
+    </script>
+</body>
+</html>
